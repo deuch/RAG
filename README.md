@@ -47,6 +47,9 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 |AzureOpenAIKey||Azure OpenAI Key|
 |AzureOpenAIModel||Azure OpenAI Model Deployment Name|
 |AzureOpenAIModelName|gpt-35-turbo|Azure OpenAI Model Name|
-|AzureOpenAIEmbeddingModel||Azure OpenAI Embedding Model Deployment Name|
+|AzureOpenAIEmbeddingModel|text-embedding-ada-002|Azure OpenAI Embedding Model Deployment Name|
 
 ### POST Manual actions
+
+1. You need to approve the Shared Private Access Link on the storage account for AI Search service
+2. You need to add the **Storage Blob Data Reader** Role to the System Managed Identity of your Document Intelligence service on the Storage Account
