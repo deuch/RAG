@@ -133,7 +133,7 @@
     "ACRDataPrivateIP": {
       "type": "string",
       "metadata": {
-        "description": "Priate IP of the Azure Container Registry Data Endpoint"
+        "description": "Private IP of the Azure Container Registry Data Endpoint"
       }
     },
     "ACRUserName": {
@@ -173,13 +173,7 @@
       "type": "string",
       "defaultValue": "rag-backend:1.0",
       "metadata": {
-        "description": "Name/tag of Container Image for Backend"
-      }
-    },
-    "AMPLSName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of Azure Monitor Private Link Scope"
+        "description": "Name/tag of Container Image for Admin Web App"
       }
     },
     "AzureOpenAIResource": {
