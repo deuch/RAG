@@ -5,7 +5,7 @@ This repo will help you to deploy a RAG solution based on the chat on your data 
 ## Architecture
 
 The architecture is based on the one deployed for AML.  
-A central hub VNETT (with Firewall) and all the applications use their own VNET which is peered to the hub.  
+A central hub VNET (with Firewall) and all the applications use their own VNET (as a spoke) which is peered to the hub.  
 NSG and UDR are applied on all subnet and filtering is done by the Firewall.  
 
 The new subnets must be added to the IP Firewall Group to enable filtering.
