@@ -23,7 +23,7 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 5. You need to push the images in the new registry with those names (it can be modified in the deployment parameters later if needed):
     - rag-webapp:1.0
     - rag-adminwebapp:1.0
-    - rag-backend:1.0
+    - rag-backend:1.0 
 6. You need to create a scope map and a associated token to be able to push those images
 
 ## Deployment parameters
@@ -48,7 +48,7 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 |AzureOpenAIResource||Name of Azure OpenAI Resource|
 |AOAIResourceGroupName||ResourceGroup Name of Azure OpenAI Resource|
 |AzureOpenAIKey||Azure OpenAI Key|
-|AzureOpenAIModel||Azure OpenAI Model Deployment Name|
+|AzureOpenAIModel|gpt-35-turbo|Azure OpenAI Model Deployment Name|
 |AzureOpenAIModelName|gpt-35-turbo|Azure OpenAI Model Name|
 |AzureOpenAIEmbeddingModel|text-embedding-ada-002|Azure OpenAI Embedding Model Deployment Name|
 
