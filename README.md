@@ -18,9 +18,9 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 3. Enable admin login
 4. Keep the IPs of the 2 private endpoint and the associated FQDN (for eg *myacr*.azurecr.io and *myacr.region*.data.azurecr.io)
 5. You need to push the images in the new registry with those names (it can be modified in the deployment parameters later if needed):
-  - rag-webapp:1.0
-  - rag-adminwebapp:1.0
-  - rag-backend:1.0
+    - rag-webapp:1.0
+    - rag-adminwebapp:1.0
+    - rag-backend:1.0
 6. You need to create a scope map and a associated token to be able to push those images
 
 ## Deployment parameters
