@@ -1,0 +1,2492 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.23.1.45101",
+      "templateHash": "6225439783988414033"
+    }
+  },
+  "parameters": {
+    "ResourcePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "provide a 2-13 character prefix for all resources."
+      }
+    },
+    "Location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "addressPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "10.99.0.0/16"
+      ],
+      "metadata": {
+        "description": "Address prefix of the virtual network"
+      }
+    },
+    "HostingPlanName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-hosting-plan', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Name of App Service plan"
+      }
+    },
+    "HostingPlanSku": {
+      "type": "string",
+      "defaultValue": "B3",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "The pricing tier for the App Service plan"
+      }
+    },
+    "vnetNameResourceGroup": {
+      "type": "string",
+      "defaultValue" : "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of the VNET resource group"
+      }
+    },
+    "subnetAppServiceName": {
+      "type": "string",
+      "defaultValue" : "appservice",
+      "metadata": {
+        "description": "Name of the subnet for app service"
+      }
+    },
+    "subnetPEName": {
+      "type": "string",
+      "defaultValue": "pe",
+      "metadata": {
+        "description": "Name of the subnet for Private Endpoints"
+      }
+    },
+    "subnetPEPrefix": {
+      "type": "string",
+      "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 0)]",
+      "metadata": {
+        "description": "Subnet private endpoint prefix of the virtual network"
+      }
+    },
+    "subnetAppServicePrefix": {
+      "type": "string",
+      "defaultValue": "[cidrSubnet(first(parameters('addressPrefixes')), 24, 1)]",
+      "metadata": {
+        "description": "Subnet private endpoint prefix of the virtual network"
+      }
+    },
+    "hubVNetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Hub Vnet"
+      }
+    },
+    "hubVNetResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group of the Hub Vnet"
+      }
+    },
+    "firewallIPGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "IP Group used by the Firewall"
+      }
+    },
+    "privateAZFWIP": {
+      "type": "string",
+      "metadata": {
+        "description": "Private IP of the Azure Firewall"
+      }
+    },
+    "ACRName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Azure Container Registry"
+      }
+    },
+    "ACRPrivateIP": {
+      "type": "string",
+      "metadata": {
+        "description": "Private IP of the Azure Container Registry"
+      }
+    },
+    "ACRDataPrivateIP": {
+      "type": "string",
+      "metadata": {
+        "description": "Priate IP of the Azure Container Registry Data Endpoint"
+      }
+    },
+    "ACRUserName": {
+      "type": "string",
+      "metadata": {
+        "description": "User name (scope map) for Azure Container Registry"
+      }
+    },
+    "ACRPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password (token) of the Azure Container Registry"
+      }
+    },
+    "WebsiteName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-website', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Name of Web App"
+      }
+    },
+    "ACRWebAppImageName": {
+      "type": "string",
+      "defaultValue": "rag-webapp:1.0",
+      "metadata": {
+        "description": "Name/tag of Container Image for Web App"
+      }
+    },
+    "ACRAdminWebAppImageName": {
+      "type": "string",
+      "defaultValue": "rag-adminwebapp:1.0",
+      "metadata": {
+        "description": "Name/tag of Container Image for Admin Web App"
+      }
+    },
+    "ACRBackendImageName": {
+      "type": "string",
+      "defaultValue": "rag-backend:1.0",
+      "metadata": {
+        "description": "Name/tag of Container Image for Backend"
+      }
+    },
+    "AMPLSName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Azure Monitor Private Link Scope"
+      }
+    },
+    "AzureOpenAIResource": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of Azure OpenAI Resource"
+      }
+    },
+    "AOAIResourceGroupName": {
+      "type": "string",
+      "metadata": {
+        "description": "ResourceGroup Name of Azure OpenAI Resource"
+      }
+    },
+    "AzureOpenAIKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Azure OpenAI Key"
+      }
+    },
+    "AzureOpenAIModel": {
+      "type": "string",
+      "defaultValue": "gpt-35-turbo",
+      "metadata": {
+        "description": "Azure OpenAI Model Deployment Name"
+      }
+    },
+    "AzureOpenAIModelName": {
+      "type": "string",
+      "defaultValue": "gpt-35-turbo",
+      "metadata": {
+        "description": "Azure OpenAI Model Name"
+      }
+    },
+    "AzureOpenAIEmbeddingModel": {
+      "type": "string",
+      "defaultValue": "text-embedding-ada-002",
+      "metadata": {
+        "description": "Azure OpenAI Embedding Model"
+      }
+    },
+    "AzureOpenAIApiVersion": {
+      "type": "string",
+      "defaultValue": "2023-07-01-preview",
+      "metadata": {
+        "description": "Azure OpenAI Api Version"
+      }
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-loganalytics', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Name of Log Analytics Workspace for App Insights"
+      }
+    },
+    "ApplicationInsightsName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-appinsights', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Name of Application Insights"
+      }
+    },
+    "AzureSearchUseSemanticSearch": {
+      "type": "string",
+      "defaultValue": "true",
+      "metadata": {
+        "description": "Use semantic search"
+      }
+    },
+    "AzureSearchSemanticSearchConfig": {
+      "type": "string",
+      "defaultValue": "default",
+      "metadata": {
+        "description": "Semantic search config"
+      }
+    },
+    "AzureSearchIndexIsPrechunked": {
+      "type": "string",
+      "defaultValue": "false",
+      "metadata": {
+        "description": "Is the index prechunked"
+      }
+    },
+    "AzureSearchTopK": {
+      "type": "string",
+      "defaultValue": "5",
+      "metadata": {
+        "description": "Top K results"
+      }
+    },
+    "AzureSearchEnableInDomain": {
+      "type": "string",
+      "defaultValue": "false",
+      "metadata": {
+        "description": "Enable in domain"
+      }
+    },
+    "AzureSearchContentColumns": {
+      "type": "string",
+      "defaultValue": "content",
+      "metadata": {
+        "description": "Content columns"
+      }
+    },
+    "AzureSearchFilenameColumn": {
+      "type": "string",
+      "defaultValue": "filename",
+      "metadata": {
+        "description": "Filename column"
+      }
+    },
+    "AzureSearchTitleColumn": {
+      "type": "string",
+      "defaultValue": "title",
+      "metadata": {
+        "description": "Title column"
+      }
+    },
+    "AzureSearchUrlColumn": {
+      "type": "string",
+      "defaultValue": "url",
+      "metadata": {
+        "description": "Url column"
+      }
+    },
+    "OrchestrationStrategy": {
+      "type": "string",
+      "defaultValue": "openai_function",
+      "allowedValues": [
+        "openai_function",
+        "langchain"
+      ],
+      "metadata": {
+        "description": "Orchestration strategy: openai_function or langchain str. If you use a old version of turbo (0301), plese select langchain"
+      }
+    },
+    "AzureOpenAITemperature": {
+      "type": "string",
+      "defaultValue": "0",
+      "metadata": {
+        "description": "Azure OpenAI Temperature"
+      }
+    },
+    "AzureOpenAITopP": {
+      "type": "string",
+      "defaultValue": "1",
+      "metadata": {
+        "description": "Azure OpenAI Top P"
+      }
+    },
+    "AzureOpenAIMaxTokens": {
+      "type": "string",
+      "defaultValue": "1000",
+      "metadata": {
+        "description": "Azure OpenAI Max Tokens"
+      }
+    },
+    "AzureOpenAIStopSequence": {
+      "type": "string",
+      "defaultValue": "\n",
+      "metadata": {
+        "description": "Azure OpenAI Stop Sequence"
+      }
+    },
+    "AzureOpenAISystemMessage": {
+      "type": "string",
+      "defaultValue": "You are an AI assistant that helps people find information.",
+      "metadata": {
+        "description": "Azure OpenAI System Message"
+      }
+    },
+    "AzureOpenAIStream": {
+      "type": "string",
+      "defaultValue": "true",
+      "metadata": {
+        "description": "Whether or not to stream responses from Azure OpenAI"
+      }
+    },
+    "AzureCognitiveSearch": {
+      "type": "string",
+      "defaultValue": "[format('{0}-search', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Azure AI Search Resource"
+      }
+    },
+    "AzureCognitiveSearchSku": {
+      "type": "string",
+      "defaultValue": "standard",
+      "allowedValues": [
+        "free",
+        "basic",
+        "standard",
+        "standard2",
+        "standard3"
+      ],
+      "metadata": {
+        "description": "The SKU of the search service you want to create. E.g. free or standard"
+      }
+    },
+    "AzureSearchIndex": {
+      "type": "string",
+      "defaultValue": "[format('{0}-index', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Azure AI Search Index"
+      }
+    },
+    "AzureSearchConversationLogIndex": {
+      "type": "string",
+      "defaultValue": "conversations",
+      "metadata": {
+        "description": "Azure AI Search Conversation Log Index"
+      }
+    },
+    "StorageAccountName": {
+      "type": "string",
+      "defaultValue": "[toLower(format('sa{0}{1}', replace(parameters('ResourcePrefix'),'_',''), substring(uniqueString(resourceGroup().id, parameters('ResourcePrefix')),0,4)))]",
+      "metadata": {
+        "description": "Name of Storage Account"
+      }
+    },
+    "StorageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Standard_ZRS",
+        "Standard_GZRS",
+        "Standard_RAGZRS"
+      ]
+    },
+    "FunctionName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-backend', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Name of Function App for Batch document processing"
+      }
+    },
+    "FormRecognizerName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-formrecog', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Azure Form Recognizer Name"
+      }
+    },
+    "FormRecognizerLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Azure Form Recognizer Location"
+      }
+    },
+    "SpeechServiceName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-speechservice', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Azure Speech Service Name"
+      }
+    },
+    "ContentSafetyName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-contentsafety', parameters('ResourcePrefix'))]",
+      "metadata": {
+        "description": "Azure Content Safety Name"
+      }
+    },
+    "newGuidString": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "variables": {
+    "ACRUrl": "[format('https://{0}.azurecr.io', parameters('ACRName'))]",
+    "WebAppImageName": "[format('DOCKER|{0}.azurecr.io/{1}', parameters('ACRName'), parameters('ACRWebAppImageName'))]",
+    "AdminWebAppImageName": "[format('DOCKER|{0}.azurecr.io/{1}', parameters('ACRName'), parameters('ACRAdminWebAppImageName'))]",
+    "BackendImageName": "[format('DOCKER|{0}.azurecr.io/{1}', parameters('ACRName'), parameters('ACRBackendImageName'))]",
+    "BlobContainerName": "documents",
+    "QueueName": "doc-processing",
+    "ClientKey": "[format('{0}{1}', uniqueString(guid(resourceGroup().id, deployment().name)), parameters('newGuidString'))]",
+    "EventGridSystemTopicName": "doc-processing",
+    "hubVNetId": "[resourceId(parameters('hubVNetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('hubVNetName'))]",
+    "vnetName": "[toLower(format('{0}-vnet', resourceGroup().name))]",
+    "vnetResourceGroupName": "[resourceGroup().name]",
+    "VirtualNetworkId": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+    "subnetPEId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+    "networkSecurityGroupName" : "[toLower(format('nsg-{0}', resourceGroup().name))]",
+    "routeTableName": "[toLower(format('rt-{0}', resourceGroup().name))]",
+    "subnetAppServiceID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]",
+    "CognitiveManagedIdentityName": "[format('mi-{0}-{1}', parameters('ResourcePrefix'), 'cognitives')]",
+    "CognitiveManagedIdentityID": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('CognitiveManagedIdentityName'))]",
+    "StorageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+    "privateBlobEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "groupIds": [
+          "blob"
+        ]
+      }
+    },
+    "privateQueueEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "groupIds": [
+          "queue"
+        ]
+      }
+    },
+    "privateMonEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-mon', parameters('ApplicationInsightsName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('microsoft.insights/privatelinkscopes', format('pls{0}', parameters('ApplicationInsightsName')))]",
+        "groupIds": [
+          "azuremonitor"
+        ]
+      }
+    },
+    "privateSearchEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-search', parameters('AzureCognitiveSearch')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.Search/searchServices', parameters('AzureCognitiveSearch'))]",
+        "groupIds": [
+          "searchService"
+        ]
+      }
+    },
+    "privateFormRecognizerEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-recog', parameters('FormRecognizerName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('FormRecognizerName'))]",
+        "groupIds": [
+          "account"
+        ]
+      }
+    },
+    "privateContentSafetyEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-cs', parameters('ContentSafetyName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('ContentSafetyName'))]",
+        "groupIds": [
+          "account"
+        ]
+      }
+    },
+    "privateWebsiteEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-web', parameters('WebsiteName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]",
+        "groupIds": [
+          "sites"
+        ]
+      }
+    },
+    "privateWebsiteAdminEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-web', format('{0}-admin', parameters('WebsiteName'))))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', format('{0}-admin', parameters('WebsiteName')))]",
+        "groupIds": [
+          "sites"
+        ]
+      }
+    },
+    "privateFunctionEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-function', parameters('FunctionName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', parameters('FunctionName'))]",
+        "groupIds": [
+          "sites"
+        ]
+      }
+    },
+    "privateSpeechEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-speech', parameters('SpeechServiceName')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('SpeechServiceName'))]",
+        "groupIds": [
+          "account"
+        ]
+      }
+    },
+    "privateAOAIEndpointSettings": {
+      "name": "[toLower(format('{0}-PrivateEndpoint-aoai', parameters('AzureOpenAIResource')))]",
+      "properties": {
+        "privateLinkServiceId": "[resourceId(parameters('AOAIResourceGroupName'),'Microsoft.CognitiveServices/accounts', parameters('AzureOpenAIResource'))]",
+        "groupIds": [
+          "account"
+        ]
+      }
+    },
+    "blobPEConnections": "[array(variables('privateBlobEndpointSettings'))]",
+    "queuePEConnections": "[array(variables('privateQueueEndpointSettings'))]",
+    "monPEConnections": "[array(variables('privateMonEndpointSettings'))]",
+    "searchPEConnections": "[array(variables('privateSearchEndpointSettings'))]",
+    "formRecogPEConnections": "[array(variables('privateFormRecognizerEndpointSettings'))]",
+    "contentSafetyPEConnections": "[array(variables('privateContentSafetyEndpointSettings'))]",
+    "speechPEConnections": "[array(variables('privateSpeechEndpointSettings'))]",
+    "websitePEConnections": "[array(variables('privateWebsiteEndpointSettings'))]",
+    "websiteAdminPEConnections": "[array(variables('privateWebsiteAdminEndpointSettings'))]",
+    "functionPEConnections": "[array(variables('privateFunctionEndpointSettings'))]",
+    "AOAIPEConnections": "[array(variables('privateAOAIEndpointSettings'))]"
+    },
+  "resources": [
+    {
+      "type": "Microsoft.Network/routeTables",
+      "name": "[variables('routeTableName')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "routes": [
+          {
+            "name": "ToAZureFirewall",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[parameters('privateAZFWIP')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2020-05-01",
+      "properties": {
+        "securityRules": []
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('vnetName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[parameters('addressPrefixes')]"
+        },
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2022-05-01",
+      "name": "[toLower(format('{0}/{1}', variables('vnetName'), parameters('subnetPEName')))]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetPEPrefix')]",
+        "privateLinkServiceNetworkPolicies": "Enabled",
+        "privateEndpointNetworkPolicies" : "Enabled",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        },
+        "routeTable": {
+          "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+        "peeringTemplate"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2022-05-01",
+      "name": "[toLower(format('{0}/{1}', variables('vnetName'), parameters('subnetAppServiceName')))]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetAppServicePrefix')]",
+        "privateLinkServiceNetworkPolicies": "Enabled",
+        "privateEndpointNetworkPolicies" : "Enabled",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        },
+        "routeTable": {
+          "id": "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]"
+        },
+        "delegations": [
+          {
+            "name": "Microsoft.Web.serverFarms",
+            "type": "Microsoft.Network/virtualNetworks/subnets/delegations",
+            "properties" : {
+              "serviceName": "Microsoft.Web/serverFarms"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Network/routeTables', variables('routeTableName'))]",
+        "peeringTemplate"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-05-01",
+      "name": "[toLower(format('{0}/{1}', variables('vnetName'), format('{0}-to-hub',parameters('hubVNetName'))))]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[variables('hubVNetId')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('SpeechServiceName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-speech', parameters('SpeechServiceName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('speechPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-web', parameters('WebsiteName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('websitePEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}-admin', parameters('WebsiteName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-web', format('{0}-admin', parameters('WebsiteName')))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('websiteAdminPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('FunctionName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-func', parameters('FunctionName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('functionPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('FormRecognizerName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-recog', parameters('FormRecognizerName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('formRecogPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('ContentSafetyName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-cs', parameters('ContentSafetyName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('contentSafetyPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Search/searchServices', parameters('AzureCognitiveSearch'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-search', parameters('AzureCognitiveSearch'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('searchPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('blobPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('queuePEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-mon', parameters('ApplicationInsightsName'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('monPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetPEName'))]",
+        "privateDNSTemplate"
+      ],
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}-PrivateEndpoint-aoai', parameters('AzureOpenAIResource'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": "[variables('AOAIPEConnections')]",
+        "subnet": {
+          "id": "[variables('subnetPEId')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-web', parameters('WebsiteName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-azurewebsites-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurewebsites.net' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-web', parameters('WebsiteName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-web', format('{0}-admin', parameters('WebsiteName'))), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-azurewebsites-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurewebsites.net' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-web', format('{0}-admin', parameters('WebsiteName'))))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-func', parameters('FunctionName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-azurewebsites-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurewebsites.net' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-func', parameters('FunctionName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-cs', parameters('ContentSafetyName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-cognitivesservices-azure-com",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.cognitiveservices.azure.com' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-cs', parameters('ContentSafetyName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-speech', parameters('SpeechServiceName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-cognitivesservices-azure-com",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.cognitiveservices.azure.com' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-speech', parameters('SpeechServiceName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-recog', parameters('FormRecognizerName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-cognitivesservices-azure-com",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.cognitiveservices.azure.com' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-recog', parameters('FormRecognizerName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-search', parameters('AzureCognitiveSearch')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-search-windows-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.search.windows.net' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-search', parameters('AzureCognitiveSearch')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-aoai', parameters('AzureOpenAIResource')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-openai-azure-com",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.openai.azure.com' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-aoai', parameters('AzureOpenAIResource')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-blob-core-windows-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName')), 'default')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-queue-core-windows-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.queue.core.windows.net' )]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2021-05-01",
+      "name": "[format('{0}/{1}', format('{0}-PrivateEndpoint-mon', parameters('ApplicationInsightsName')), 'default')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+          "privateDnsZoneConfigs": [
+              {
+                  "name": "privatelink-monitor-azure-com",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.monitor.azure.com')]"
+                  }
+              },
+              {
+                  "name": "privatelink-oms-opinsights-azure-com",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.oms.opinsights.azure.com')]"
+                  }
+              },
+              {
+                  "name": "privatelink-ods-opinsights-azure-com",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.ods.opinsights.azure.com')]"
+                  }
+              },
+              {
+                  "name": "privatelink-agentsvc-azure-automation-net",
+                  "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.agentsvc.azure-automation.net')]"
+                  }
+              }
+          ]
+      },
+      "dependsOn": [
+        "privateDNSTemplate",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-mon', parameters('ApplicationInsightsName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('CognitiveManagedIdentityName')]",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "type": "Microsoft.Search/searchServices",
+      "apiVersion": "2022-09-01",
+      "name": "[parameters('AzureCognitiveSearch')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "deployment": "chatwithyourdata-sa"
+      },
+      "sku": {
+        "name": "[parameters('AzureCognitiveSearchSku')]"
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "replicaCount": 1,
+        "partitionCount": 1,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('SpeechServiceName')]",
+      "location": "[parameters('Location')]",
+      "sku": {
+        "name": "S0"
+      },
+      "kind": "SpeechServices",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "customSubDomainName" : "[parameters('SpeechServiceName')]",
+        "networkAcls": {
+          "defaultAction": "Allow",
+          "virtualNetworkRules": [],
+          "ipRules": []
+        },
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Search/searchServices/sharedPrivateLinkResources",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', parameters('AzureCognitiveSearch'), parameters('StorageAccountName'))]",
+      "properties": {
+        "groupId": "blob",
+        "privateLinkResourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "provisioningState": "Updating",
+        "requestMessage": "Please approve the link",
+        "resourceRegion": null,
+        "status": "Pending"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Search/searchServices', parameters('AzureCognitiveSearch'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2022-12-01",
+      "name": "[parameters('FormRecognizerName')]",
+      "location": "[parameters('FormRecognizerLocation')]",
+      "sku": {
+        "name": "S0"
+      },
+      "kind": "FormRecognizer",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "customSubDomainName" : "[parameters('FormRecognizerName')]",
+        "publicNetworkAccess": "Disabled",
+        "networkAcls": {
+          "defaultAction": "Allow",
+          "virtualNetworkRules": [],
+          "ipRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('ContentSafetyName')]",
+      "location": "[parameters('Location')]",
+      "sku": {
+        "name": "S0"
+      },
+      "kind": "ContentSafety",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "customSubDomainName" : "[parameters('ContentSafetyName')]",
+        "publicNetworkAccess": "Disabled",
+        "networkAcls": {
+          "defaultAction": "Allow",
+          "virtualNetworkRules": [],
+          "ipRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('HostingPlanName')]",
+      "location": "[parameters('Location')]",
+      "sku": {
+        "name": "[parameters('HostingPlanSku')]"
+      },
+      "properties": {
+        "reserved": true
+      },
+      "kind": "linux"
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('WebsiteName')]",
+      "location": "[parameters('Location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[parameters('HostingPlanName')]",
+        "publicNetworkAccess": "Enabled",
+        "vnetRouteAllEnabled": true,
+        "vnetImagePullEnabled": true,
+        "vnetContentShareEnabled": true,
+        "siteConfig": {
+          "publicNetworkAccess": "Enabled",
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName')), '2015-05-01').ConnectionString]"
+            },
+            {
+              "name": "AZURE_SEARCH_SERVICE",
+              "value": "[format('https://{0}.search.windows.net', parameters('AzureCognitiveSearch'))]"
+            },
+            {
+              "name": "AZURE_SEARCH_INDEX",
+              "value": "[parameters('AzureSearchIndex')]"
+            },
+            {
+              "name": "AZURE_SEARCH_CONVERSATIONS_LOG_INDEX",
+              "value": "[parameters('AzureSearchConversationLogIndex')]"
+            },
+            {
+              "name": "AZURE_SEARCH_KEY",
+              "value": "[listAdminKeys(format('Microsoft.Search/searchServices/{0}', parameters('AzureCognitiveSearch')), '2021-04-01-preview').primaryKey]"
+            },
+            {
+              "name": "AZURE_SEARCH_SEMANTIC_SEARCH_CONFIG",
+              "value": "[parameters('AzureSearchSemanticSearchConfig')]"
+            },
+            {
+              "name": "AZURE_SEARCH_INDEX_IS_PRECHUNKED",
+              "value": "[parameters('AzureSearchIndexIsPrechunked')]"
+            },
+            {
+              "name": "AZURE_SEARCH_TOP_K",
+              "value": "[parameters('AzureSearchTopK')]"
+            },
+            {
+              "name": "AZURE_SEARCH_ENABLE_IN_DOMAIN",
+              "value": "[parameters('AzureSearchEnableInDomain')]"
+            },
+            {
+              "name": "AZURE_SEARCH_CONTENT_COLUMNS",
+              "value": "[parameters('AzureSearchContentColumns')]"
+            },
+            {
+              "name": "AZURE_SEARCH_FILENAME_COLUMN",
+              "value": "[parameters('AzureSearchFilenameColumn')]"
+            },
+            {
+              "name": "AZURE_SEARCH_TITLE_COLUMN",
+              "value": "[parameters('AzureSearchTitleColumn')]"
+            },
+            {
+              "name": "AZURE_SEARCH_URL_COLUMN",
+              "value": "[parameters('AzureSearchUrlColumn')]"
+            },
+            {
+              "name": "AZURE_OPENAI_RESOURCE",
+              "value": "[parameters('AzureOpenAIResource')]"
+            },
+            {
+              "name": "AZURE_OPENAI_KEY",
+              "value": "[parameters('AzureOpenAIKey')]"
+            },
+            {
+              "name": "AZURE_OPENAI_MODEL",
+              "value": "[parameters('AzureOpenAIModel')]"
+            },
+            {
+              "name": "AZURE_OPENAI_MODEL_NAME",
+              "value": "[parameters('AzureOpenAIModelName')]"
+            },
+            {
+              "name": "AZURE_OPENAI_TEMPERATURE",
+              "value": "[parameters('AzureOpenAITemperature')]"
+            },
+            {
+              "name": "AZURE_OPENAI_TOP_P",
+              "value": "[parameters('AzureOpenAITopP')]"
+            },
+            {
+              "name": "AZURE_OPENAI_MAX_TOKENS",
+              "value": "[parameters('AzureOpenAIMaxTokens')]"
+            },
+            {
+              "name": "AZURE_OPENAI_STOP_SEQUENCE",
+              "value": "[parameters('AzureOpenAIStopSequence')]"
+            },
+            {
+              "name": "AZURE_OPENAI_SYSTEM_MESSAGE",
+              "value": "[parameters('AzureOpenAISystemMessage')]"
+            },
+            {
+              "name": "AZURE_OPENAI_API_VERSION",
+              "value": "[parameters('AzureOpenAIApiVersion')]"
+            },
+            {
+              "name": "AZURE_OPENAI_STREAM",
+              "value": "[parameters('AzureOpenAIStream')]"
+            },
+            {
+              "name": "AZURE_OPENAI_EMBEDDING_MODEL",
+              "value": "[parameters('AzureOpenAIEmbeddingModel')]"
+            },
+            {
+              "name": "AZURE_FORM_RECOGNIZER_ENDPOINT",
+              "value": "[format('https://{0}.cognitiveservices.azure.com/', parameters('FormRecognizerName'))]"
+            },
+            {
+              "name": "AZURE_FORM_RECOGNIZER_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('FormRecognizerName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "AZURE_BLOB_ACCOUNT_NAME",
+              "value": "[parameters('StorageAccountName')]"
+            },
+            {
+              "name": "AZURE_BLOB_ACCOUNT_KEY",
+              "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value]"
+            },
+            {
+              "name": "AZURE_BLOB_CONTAINER_NAME",
+              "value": "[variables('BlobContainerName')]"
+            },
+            {
+              "name": "ORCHESTRATION_STRATEGY",
+              "value": "[parameters('OrchestrationStrategy')]"
+            },
+            {
+              "name": "AZURE_CONTENT_SAFETY_ENDPOINT",
+              "value": "[format('https://{0}.cognitiveservices.azure.com/', parameters('ContentSafetyName'))]"
+            },
+            {
+              "name": "AZURE_CONTENT_SAFETY_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('ContentSafetyName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "AZURE_SPEECH_SERVICE_NAME",
+              "value": "[parameters('SpeechServiceName')]"
+            },
+            {
+              "name": "AZURE_SPEECH_SERVICE_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('SpeechServiceName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "AZURE_SPEECH_SERVICE_REGION",
+              "value": "[parameters('Location')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[variables('ACRUrl')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+              "value": "[parameters('ACRUserName')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+              "value": "[parameters('ACRPassword')]"
+            }
+          ],
+          "linuxFxVersion": "[variables('WebAppImageName')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName')))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName')))]",
+        "privateDNSTemplate"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}-admin', parameters('WebsiteName'))]",
+      "location": "[parameters('Location')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[parameters('HostingPlanName')]",
+        "publicNetworkAccess": "Enabled",
+        "vnetRouteAllEnabled": true,
+        "vnetImagePullEnabled": true,
+        "vnetContentShareEnabled": true,
+        "siteConfig": {
+          "publicNetworkAccess": "Enabled",
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "AZURE_SEARCH_SERVICE",
+              "value": "[format('https://{0}.search.windows.net', parameters('AzureCognitiveSearch'))]"
+            },
+            {
+              "name": "AZURE_SEARCH_KEY",
+              "value": "[listAdminKeys(format('Microsoft.Search/searchServices/{0}', parameters('AzureCognitiveSearch')), '2021-04-01-preview').primaryKey]"
+            },
+            {
+              "name": "AZURE_SEARCH_INDEX",
+              "value": "[parameters('AzureSearchIndex')]"
+            },
+            {
+              "name": "AZURE_SEARCH_USE_SEMANTIC_SEARCH",
+              "value": "[parameters('AzureSearchUseSemanticSearch')]"
+            },
+            {
+              "name": "AZURE_SEARCH_SEMANTIC_SEARCH_CONFIG",
+              "value": "[parameters('AzureSearchSemanticSearchConfig')]"
+            },
+            {
+              "name": "AZURE_SEARCH_INDEX_IS_PRECHUNKED",
+              "value": "[parameters('AzureSearchIndexIsPrechunked')]"
+            },
+            {
+              "name": "AZURE_SEARCH_TOP_K",
+              "value": "[parameters('AzureSearchTopK')]"
+            },
+            {
+              "name": "AZURE_SEARCH_ENABLE_IN_DOMAIN",
+              "value": "[parameters('AzureSearchEnableInDomain')]"
+            },
+            {
+              "name": "AZURE_SEARCH_CONTENT_COLUMNS",
+              "value": "[parameters('AzureSearchContentColumns')]"
+            },
+            {
+              "name": "AZURE_SEARCH_FILENAME_COLUMN",
+              "value": "[parameters('AzureSearchFilenameColumn')]"
+            },
+            {
+              "name": "AZURE_SEARCH_TITLE_COLUMN",
+              "value": "[parameters('AzureSearchTitleColumn')]"
+            },
+            {
+              "name": "AZURE_SEARCH_URL_COLUMN",
+              "value": "[parameters('AzureSearchUrlColumn')]"
+            },
+            {
+              "name": "AZURE_OPENAI_RESOURCE",
+              "value": "[parameters('AzureOpenAIResource')]"
+            },
+            {
+              "name": "AZURE_OPENAI_KEY",
+              "value": "[parameters('AzureOpenAIKey')]"
+            },
+            {
+              "name": "AZURE_OPENAI_MODEL",
+              "value": "[parameters('AzureOpenAIModel')]"
+            },
+            {
+              "name": "AZURE_OPENAI_MODEL_NAME",
+              "value": "[parameters('AzureOpenAIModelName')]"
+            },
+            {
+              "name": "AZURE_OPENAI_TEMPERATURE",
+              "value": "[parameters('AzureOpenAITemperature')]"
+            },
+            {
+              "name": "AZURE_OPENAI_TOP_P",
+              "value": "[parameters('AzureOpenAITopP')]"
+            },
+            {
+              "name": "AZURE_OPENAI_MAX_TOKENS",
+              "value": "[parameters('AzureOpenAIMaxTokens')]"
+            },
+            {
+              "name": "AZURE_OPENAI_STOP_SEQUENCE",
+              "value": "[parameters('AzureOpenAIStopSequence')]"
+            },
+            {
+              "name": "AZURE_OPENAI_SYSTEM_MESSAGE",
+              "value": "[parameters('AzureOpenAISystemMessage')]"
+            },
+            {
+              "name": "AZURE_OPENAI_API_VERSION",
+              "value": "[parameters('AzureOpenAIApiVersion')]"
+            },
+            {
+              "name": "AZURE_OPENAI_STREAM",
+              "value": "[parameters('AzureOpenAIStream')]"
+            },
+            {
+              "name": "AZURE_OPENAI_EMBEDDING_MODEL",
+              "value": "[parameters('AzureOpenAIEmbeddingModel')]"
+            },
+            {
+              "name": "AZURE_FORM_RECOGNIZER_ENDPOINT",
+              "value": "[format('https://{0}.cognitiveservices.azure.com/', parameters('FormRecognizerName'))]"
+            },
+            {
+              "name": "AZURE_FORM_RECOGNIZER_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('FormRecognizerName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "AZURE_BLOB_ACCOUNT_NAME",
+              "value": "[parameters('StorageAccountName')]"
+            },
+            {
+              "name": "AZURE_BLOB_ACCOUNT_KEY",
+              "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value]"
+            },
+            {
+              "name": "AZURE_BLOB_CONTAINER_NAME",
+              "value": "[variables('BlobContainerName')]"
+            },
+            {
+              "name": "DOCUMENT_PROCESSING_QUEUE_NAME",
+              "value": "[variables('QueueName')]"
+            },
+            {
+              "name": "BACKEND_URL",
+              "value": "[format('https://{0}.azurewebsites.net', parameters('FunctionName'))]"
+            },
+            {
+              "name": "FUNCTION_KEY",
+              "value": "[variables('ClientKey')]"
+            },
+            {
+              "name": "ORCHESTRATION_STRATEGY",
+              "value": "[parameters('OrchestrationStrategy')]"
+            },
+            {
+              "name": "AZURE_CONTENT_SAFETY_ENDPOINT",
+              "value": "[format('https://{0}.cognitiveservices.azure.com/', parameters('ContentSafetyName'))]"
+            },
+            {
+              "name": "AZURE_CONTENT_SAFETY_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('ContentSafetyName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[variables('ACRUrl')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+              "value": "[parameters('ACRUserName')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+              "value": "[parameters('ACRPassword')]"
+            }
+          ],
+          "linuxFxVersion": "[variables('AdminWebAppImageName')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName')))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName')))]",
+        "privateDNSTemplate"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-08-01",
+      "name": "[parameters('StorageAccountName')]",
+      "location": "[parameters('Location')]",
+      "kind": "StorageV2",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "networkAcls": {
+          "defaultAction" : "deny",
+          "bypass": "AzureServices"
+        }
+      },
+      "sku": {
+        "name": "[parameters('StorageAccountType')]"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/default/{1}', parameters('StorageAccountName'), variables('BlobContainerName'))]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-08-01",
+      "name": "[format('{0}/default/config', parameters('StorageAccountName'))]",
+      "properties": {
+        "publicAccess": "None"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}', parameters('StorageAccountName'), 'default')]",
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}/{2}', parameters('StorageAccountName'), 'default', 'doc-processing')]",
+      "properties": {
+        "metadata": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('StorageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2022-09-01",
+      "name": "[format('{0}/{1}/{2}', parameters('StorageAccountName'), 'default', 'doc-processing-poison')]",
+      "properties": {
+        "metadata": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('StorageAccountName'), 'default')]"
+      ]
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2021-06-01",
+      "name": "[parameters('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "sku": {
+          "name": "pergb2018"
+        },
+        "publicNetworkAccessForIngestion": "Disabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[parameters('ApplicationInsightsName')]",
+      "location": "[parameters('Location')]",
+      "tags": {
+        "[format('hidden-link:{0}', resourceId('Microsoft.Web/sites', parameters('ApplicationInsightsName')))]": "Resource"
+      },
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      },
+      "kind": "web",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      ]
+    },
+    {
+      "type": "microsoft.insights/privatelinkscopes",
+      "apiVersion": "2021-07-01-preview",
+      "name": "[format('pls{0}', parameters('ApplicationInsightsName'))]",
+      "location": "global",
+      "properties": {
+          "accessModeSettings":{
+              "queryAccessMode":"Open",
+              "ingestionAccessMode":"Open"
+          }
+      }
+    },
+    {
+      "type": "Microsoft.insights/privatelinkscopes/scopedresources",
+      "apiVersion": "2019-10-17-preview",
+      "name": "[format('{0}/{1}', format('pls{0}', parameters('ApplicationInsightsName')), parameters('ApplicationInsightsName'))]",
+      "properties": {
+          "linkedResourceId": "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]",
+        "[resourceId('microsoft.insights/privatelinkscopes', format('pls{0}', parameters('ApplicationInsightsName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.insights/privatelinkscopes/scopedresources",
+      "apiVersion": "2019-10-17-preview",
+      "name": "[format('{0}/{1}', format('pls{0}', parameters('ApplicationInsightsName')), parameters('logAnalyticsWorkspaceName'))]",
+      "properties": {
+          "linkedResourceId": "[resourceId('microsoft.operationalinsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "[resourceId('microsoft.insights/privatelinkscopes', format('pls{0}', parameters('ApplicationInsightsName')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
+      "name": "[parameters('FunctionName')]",
+      "kind": "functionapp,linux",
+      "location": "[parameters('Location')]",
+      "tags": {},
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "vnetRouteAllEnabled": true,
+        "vnetImagePullEnabled": true,
+        "vnetContentShareEnabled": true,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~4"
+            },
+            {
+              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+              "value": "false"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};AccountKey={1};EndpointSuffix=core.windows.net', parameters('StorageAccountName'), listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "AZURE_OPENAI_MODEL",
+              "value": "[parameters('AzureOpenAIModel')]"
+            },
+            {
+              "name": "AZURE_OPENAI_EMBEDDING_MODEL",
+              "value": "[parameters('AzureOpenAIEmbeddingModel')]"
+            },
+            {
+              "name": "AZURE_OPENAI_RESOURCE",
+              "value": "[parameters('AzureOpenAIResource')]"
+            },
+            {
+              "name": "AZURE_OPENAI_KEY",
+              "value": "[parameters('AzureOpenAIKey')]"
+            },
+            {
+              "name": "AZURE_BLOB_ACCOUNT_NAME",
+              "value": "[parameters('StorageAccountName')]"
+            },
+            {
+              "name": "AZURE_BLOB_ACCOUNT_KEY",
+              "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value]"
+            },
+            {
+              "name": "AZURE_BLOB_CONTAINER_NAME",
+              "value": "[variables('BlobContainerName')]"
+            },
+            {
+              "name": "AZURE_FORM_RECOGNIZER_ENDPOINT",
+              "value": "[format('https://{0}.cognitiveservices.azure.com/', parameters('FormRecognizerName'))]"
+            },
+            {
+              "name": "AZURE_FORM_RECOGNIZER_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('FormRecognizerName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "AZURE_SEARCH_SERVICE",
+              "value": "[format('https://{0}.search.windows.net', parameters('AzureCognitiveSearch'))]"
+            },
+            {
+              "name": "AZURE_SEARCH_KEY",
+              "value": "[listAdminKeys(format('Microsoft.Search/searchServices/{0}', parameters('AzureCognitiveSearch')), '2021-04-01-preview').primaryKey]"
+            },
+            {
+              "name": "DOCUMENT_PROCESSING_QUEUE_NAME",
+              "value": "[variables('QueueName')]"
+            },
+            {
+              "name": "AZURE_OPENAI_API_VERSION",
+              "value": "[parameters('AzureOpenAIApiVersion')]"
+            },
+            {
+              "name": "AZURE_SEARCH_INDEX",
+              "value": "[parameters('AzureSearchIndex')]"
+            },
+            {
+              "name": "ORCHESTRATION_STRATEGY",
+              "value": "[parameters('OrchestrationStrategy')]"
+            },
+            {
+              "name": "AZURE_CONTENT_SAFETY_ENDPOINT",
+              "value": "[format('https://{0}.cognitiveservices.azure.com/', parameters('ContentSafetyName'))]"
+            },
+            {
+              "name": "AZURE_CONTENT_SAFETY_KEY",
+              "value": "[listKeys(format('Microsoft.CognitiveServices/accounts/{0}', parameters('ContentSafetyName')), '2023-05-01').key1]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_URL",
+              "value": "[variables('ACRUrl')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+              "value": "[parameters('ACRUserName')]"
+            },
+            {
+              "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+              "value": "[parameters('ACRPassword')]"
+            }
+          ],
+          "cors": {
+            "allowedOrigins": [
+              "https://portal.azure.com"
+            ]
+          },
+          "use32BitWorkerProcess": false,
+          "linuxFxVersion": "[variables('BackendImageName')]",
+          "appCommandLine": "",
+          "alwaysOn": true
+        },
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]",
+        "publicNetworkAccess": "Disabled",
+        "clientAffinityEnabled": false,
+        "httpsOnly": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('ApplicationInsightsName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('HostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-queue', parameters('StorageAccountName')))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', format('{0}-PrivateEndpoint-blob', parameters('StorageAccountName')))]",
+        "privateDNSTemplate"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/networkConfig",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', parameters('FunctionName'), 'virtualNetwork')]",
+      "properties": {
+        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]",
+        "swiftSupported": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('FunctionName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/networkConfig",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', format('{0}-admin', parameters('WebsiteName')), 'virtualNetwork')]",
+      "properties": {
+        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]",
+        "swiftSupported": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', format('{0}-admin', parameters('WebsiteName')))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]"
+      ]
+    },    
+    {
+      "type": "Microsoft.Web/sites/networkConfig",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/{1}', parameters('WebsiteName'),'virtualNetwork')]",
+      "properties": {
+        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]",
+        "swiftSupported": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('WebsiteName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), parameters('subnetAppServiceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/host/functionKeys",
+      "apiVersion": "2022-03-01",
+      "name": "[format('{0}/default/clientKey', parameters('FunctionName'))]",
+      "properties": {
+        "value": "[variables('ClientKey')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('FunctionName'))]",
+        "[resourceId('Microsoft.Web/sites/networkConfig', parameters('FunctionName'), 'virtualNetwork')]",
+        "[resourceId('Microsoft.Resources/deploymentScripts', 'WaitFunctionDeploymentSection')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "WaitFunctionDeploymentSection",
+      "kind": "AzurePowerShell",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "azPowerShellVersion": "3.0",
+        "scriptContent": "start-sleep -Seconds 330",
+        "cleanupPreference": "Always",
+        "retentionInterval": "PT1H"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('FunctionName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.EventGrid/systemTopics",
+      "apiVersion": "2021-12-01",
+      "name": "[variables('EventGridSystemTopicName')]",
+      "location": "[parameters('Location')]",
+      "properties": {
+        "source": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "topicType": "Microsoft.Storage.StorageAccounts"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+      "apiVersion": "2021-12-01",
+      "name": "[format('{0}/{1}', variables('EventGridSystemTopicName'), 'BlobEvents')]",
+      "properties": {
+        "destination": {
+          "endpointType": "StorageQueue",
+          "properties": {
+            "queueMessageTimeToLiveInSeconds": -1,
+            "queueName": "doc-processing",
+            "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
+          }
+        },
+        "filter": {
+          "includedEventTypes": [
+            "Microsoft.Storage.BlobCreated",
+            "Microsoft.Storage.BlobDeleted"
+          ],
+          "enableAdvancedFilteringOnArrays": true,
+          "subjectBeginsWith": "[format('/blobServices/default/containers/{0}/blobs/', variables('BlobContainerName'))]"
+        },
+        "labels": [],
+        "eventDeliverySchema": "EventGridSchema",
+        "retryPolicy": {
+          "maxDeliveryAttempts": 30,
+          "eventTimeToLiveInMinutes": 1440
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.EventGrid/systemTopics', variables('EventGridSystemTopicName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', parameters('StorageAccountName'), 'default', 'doc-processing')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "privateDNSTemplate",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "ACRDataPrivateIP": { 
+            "value" : "[parameters('ACRDataPrivateIP')]"
+          },
+          "ACRPrivateIP": { 
+            "value" : "[parameters('ACRPrivateIP')]"
+          },
+          "ACRName": { 
+            "value" : "[parameters('ACRName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "ACRDataPrivateIP": { 
+              "type" : "string"
+            },
+            "ACRPrivateIP": { 
+              "type" : "string"
+            },
+            "ACRName": { 
+              "type" : "string"
+            }
+          },
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.azurecr.io",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.openai.azure.com",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.queue.core.windows.net",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.blob.core.windows.net",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.azurewebsites.net",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.search.windows.net",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.agentsvc.azure-automation.net",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.cognitiveservices.azure.com",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.oms.opinsights.azure.com",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.ods.opinsights.azure.com",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "privatelink.monitor.azure.com",
+              "location": "global",
+              "properties": {}
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.oms.opinsights.azure.com', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.oms.opinsights.azure.com')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.ods.opinsights.azure.com', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.ods.opinsights.azure.com')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.monitor.azure.com', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.monitor.azure.com')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.azurecr.io', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurecr.io')]"
+              ]
+            }, 
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.agentsvc.azure-automation.net', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.agentsvc.azure-automation.net')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.cognitiveservices.azure.com', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.cognitiveservices.azure.com')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.openai.azure.com', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.openai.azure.com')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.queue.core.windows.net', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.queue.core.windows.net')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.blob.core.windows.net', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.blob.core.windows.net')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.azurewebsites.net', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurewebsites.net')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', 'privatelink.search.windows.net', uniqueString(variables('VirtualNetworkId')))]",
+              "location": "global",
+              "properties": {
+                "virtualNetwork": {
+                  "id": "[variables('VirtualNetworkId')]"
+                },
+                "registrationEnabled": false
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.search.windows.net')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/A",
+              "apiVersion": "2018-09-01",
+              "location": "global",
+              "name": "[format('{0}/{1}', 'privatelink.azurecr.io', parameters('ACRName'))]",
+              "properties": {
+                "ttl": 3600,
+                "aRecords": [
+                  {
+                    "ipv4Address": "[parameters('ACRPrivateIP')]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurecr.io')]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/A",
+              "apiVersion": "2018-09-01",
+              "location": "global",
+              "name": "[format('{0}/{1}.{2}.data', 'privatelink.azurecr.io', parameters('ACRName'), resourceGroup().location)]",
+              "properties": {
+                "ttl": 3600,
+                "aRecords": [
+                  {
+                    "ipv4Address": "[parameters('ACRDataPrivateIP')]"
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId(parameters('vnetNameResourceGroup'),'Microsoft.Network/privateDnsZones', 'privatelink.azurecr.io')]"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "networkAclTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "StorageAccountName": { 
+            "value" : "[parameters('StorageAccountName')]"
+          },
+          "StorageAccountType": { 
+            "value" : "[parameters('StorageAccountType')]"
+          },
+          "tenantId" : {
+            "value": "[subscription().tenantId]"
+          },
+          "location": {
+            "value": "[resourceGroup().location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "StorageAccountName": { 
+              "type" : "string"
+            },
+            "StorageAccountType": { 
+              "type" : "string"
+            },
+            "tenantId": { 
+              "type" : "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2022-05-01",
+              "name": "[parameters('StorageAccountName')]",
+              "location": "[resourceGroup().location]",
+              "sku": {
+                "name" : "[parameters('StorageAccountType')]"
+              }, 
+              "properties": {
+                "networkAcls": {
+                  "defaultAction" : "deny",
+                  "publicNetworkAccess": "Enabled",
+                  "bypass": "AzureServices",
+                  "resourceAccessRules": [
+                    {
+                      "resourceId": "[resourceId('Microsoft.EventGrid/systemTopics', variables('EventGridSystemTopicName'))]",
+                      "tenantId": "[subscription().tenantId]"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
+        "[resourceId('Microsoft.EventGrid/systemTopics', variables('EventGridSystemTopicName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "ipGroupTemplate",
+      "resourceGroup": "[parameters('hubVNetResourceGroupName')]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "firewallIPGroupName": { 
+            "value" : "[parameters('firewallIPGroupName')]"
+          },
+          "hubVNetResourceGroupName": {
+            "value":"[parameters('hubVNetResourceGroupName')]"
+          },
+          "location": {
+            "value": "[resourceGroup().location]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "firewallIPGroupName": { 
+              "type" : "string"
+            },
+            "hubVNetResourceGroupName": {
+              "type" : "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Network/ipGroups",
+              "apiVersion": "2023-04-01",
+              "location": "[resourceGroup().location]",
+              "name": "[parameters('firewallIPGroupName')]",        
+              "properties": {
+                "ipAddresses": "[union(reference(resourceId(parameters('hubVNetResourceGroupName'),'Microsoft.Network/ipGroups', parameters('firewallIPGroupName')),'2023-04-01').ipAddresses, array(parameters('subnetPEPrefix')), array(parameters('subnetAppServicePrefix')))]"
+                }
+              }
+        
+            ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "peeringTemplate",
+      "resourceGroup": "[parameters('hubVNetResourceGroupName')]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "vnetName": { 
+            "value" : "[variables('vnetName')]"
+          },
+          "vnetResourceGroupName": {
+            "value":"[variables('vnetResourceGroupName')]"
+          },
+          "hubVNetName": {
+            "value": "[parameters('hubVNetName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "vnetName": { 
+              "type" : "string"
+            },
+            "vnetResourceGroupName": {
+              "type" : "string"
+            },
+            "hubVNetName": {
+              "type": "string"
+            }
+          },
+          "variables": {},
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}/{1}', parameters('hubVNetName'), format('hub-to-{0}', variables('vnetName')))]",        
+              "properties": {
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": false,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "remoteVirtualNetwork": {
+                  "id": "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId(variables('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ]
+    }
+  ]
+}
