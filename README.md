@@ -56,3 +56,4 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 
 1. You need to approve the Shared Private Access Link on the storage account for AI Search service
 2. You need to add the **Storage Blob Data Reader** Role to the System Managed Identity of your Document Intelligence service on the Storage Account
+3. Please add an Identity Provider for the 2 webapps (webapp and adminwebapp)
