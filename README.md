@@ -24,7 +24,7 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
     - rag-webapp:1.0
     - rag-adminwebapp:1.0
     - rag-backend:1.0 
-6. You need to create a scope map and a associated token to be able to push those images
+6. You need to create a scope map and a associated token to be able to pull those images
 
 ## Deployment parameters
 
