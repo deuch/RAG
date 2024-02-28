@@ -1118,7 +1118,7 @@
     },
     {
       "type": "Microsoft.Search/searchServices",
-      "apiVersion": "2022-09-01",
+      "apiVersion": "2023-11-01",
       "name": "[parameters('AzureCognitiveSearch')]",
       "location": "[parameters('Location')]",
       "tags": {
