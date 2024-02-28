@@ -39,7 +39,7 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 |ACRName||Name of the Azure Container Registry|
 |ACRPrivateIP||Private IP of the Azure Container Registry|
 |ACRDataPrivateIP||Private IP of the Azure Container Registry Data Endpoint|
-|ACRUserName||User name (scope map) for Azure Container Registry|
+|ACRUserName||User name (Token name) for Azure Container Registry|
 |ACRPassword||Password (token) of the Azure Container Registry|
 |WebsiteName||Name of Web App|
 |ACRWebAppImageName|rag-webapp:1.0|Name/tag of Container Image for Web App| 
