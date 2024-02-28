@@ -34,8 +34,8 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 |addressPrefixes||Address prefix of the virtual network| 
 |hubVNetName||The name of the Hub VNET|
 |hubVNetResourceGroupName||Resource Group of the Hub VNET|
-|firewallIPGroupName||Private IP of the Azure Firewall|
-|privateAZFWIP||The name of the semantic search configuration to use if using semantic search.|
+|firewallIPGroupName||Name of the IP Group needed for the Azure Firewall|
+|privateAZFWIP||Private IP of the Azure Firewall|
 |ACRName||Name of the Azure Container Registry|
 |ACRPrivateIP||Private IP of the Azure Container Registry|
 |ACRDataPrivateIP||Private IP of the Azure Container Registry Data Endpoint|
