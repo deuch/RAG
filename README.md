@@ -42,9 +42,9 @@ The new subnets must be added to the IP Firewall Group to enable filtering.
 |ACRUserName||User name (Token name) for Azure Container Registry|
 |ACRPassword||Password (token) of the Azure Container Registry|
 |WebsiteName||Name of Web App|
-|ACRWebAppImageName|rag-webapp:1.0|Name/tag of Container Image for Web App| 
-|ACRAdminWebAppImageName|rag-adminwebapp:1.2|Name/tag of Container Image for Admin Web App|
-|ACRBackendImageName|rag-backend:1.2|Name/tag of Container Image for Admin Web App|
+|ACRWebAppImageName|rag-webapp:2.1|Name/tag of Container Image for Web App| 
+|ACRAdminWebAppImageName|rag-adminwebapp:2.1|Name/tag of Container Image for Admin Web App|
+|ACRBackendImageName|rag-backend:2.1|Name/tag of Container Image for Admin Web App|
 |AzureOpenAIResource||Name of Azure OpenAI Resource|
 |AOAIResourceGroupName||ResourceGroup Name of Azure OpenAI Resource|
 |AzureOpenAIKey||Azure OpenAI Key|
