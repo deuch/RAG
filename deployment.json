@@ -157,21 +157,21 @@
     },
     "ACRWebAppImageName": {
       "type": "string",
-      "defaultValue": "rag-webapp:1.0",
+      "defaultValue": "rag-webapp:2.1",
       "metadata": {
         "description": "Name/tag of Container Image for Web App"
       }
     },
     "ACRAdminWebAppImageName": {
       "type": "string",
-      "defaultValue": "rag-adminwebapp:1.2",
+      "defaultValue": "rag-adminwebapp:2.1",
       "metadata": {
         "description": "Name/tag of Container Image for Admin Web App"
       }
     },
     "ACRBackendImageName": {
       "type": "string",
-      "defaultValue": "rag-backend:1.2",
+      "defaultValue": "rag-backend:2.1",
       "metadata": {
         "description": "Name/tag of Container Image for Admin Web App"
       }
@@ -1310,6 +1310,10 @@
               "value": "[parameters('AzureOpenAIKey')]"
             },
             {
+              "name": "AZURE_OPENAI_API_KEY",
+              "value": "[parameters('AzureOpenAIKey')]"
+            },
+            {
               "name": "AZURE_OPENAI_MODEL",
               "value": "[parameters('AzureOpenAIModel')]"
             },
@@ -1404,6 +1408,14 @@
             {
               "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
               "value": "[parameters('ACRPassword')]"
+            },
+            {
+              "name": "AZURE_AUTH_TYPE",
+              "value": "keys"
+            },
+            {
+              "name": "USE_KEY_VAULT",
+              "value": "false"
             }
           ],
           "linuxFxVersion": "[variables('WebAppImageName')]"
@@ -1493,6 +1505,10 @@
             },
             {
               "name": "AZURE_OPENAI_KEY",
+              "value": "[parameters('AzureOpenAIKey')]"
+            },
+            {
+              "name": "AZURE_OPENAI_API_KEY",
               "value": "[parameters('AzureOpenAIKey')]"
             },
             {
@@ -1590,6 +1606,14 @@
             {
               "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
               "value": "[parameters('ACRPassword')]"
+            },
+            {
+              "name": "AZURE_AUTH_TYPE",
+              "value": "keys"
+            },
+            {
+              "name": "USE_KEY_VAULT",
+              "value": "false"
             }
           ],
           "linuxFxVersion": "[variables('AdminWebAppImageName')]"
@@ -1793,6 +1817,10 @@
               "value": "[parameters('AzureOpenAIKey')]"
             },
             {
+              "name": "AZURE_OPENAI_API_KEY",
+              "value": "[parameters('AzureOpenAIKey')]"
+            },
+            {
               "name": "AZURE_BLOB_ACCOUNT_NAME",
               "value": "[parameters('StorageAccountName')]"
             },
@@ -1855,6 +1883,14 @@
             {
               "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
               "value": "[parameters('ACRPassword')]"
+            },
+            {
+              "name": "AZURE_AUTH_TYPE",
+              "value": "keys"
+            },
+            {
+              "name": "USE_KEY_VAULT",
+              "value": "false"
             }
           ],
           "cors": {
