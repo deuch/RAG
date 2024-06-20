@@ -217,7 +217,7 @@
     },
     "AzureOpenAIApiVersion": {
       "type": "string",
-      "defaultValue": "2023-07-01-preview",
+      "defaultValue": "2024-02-01",
       "metadata": {
         "description": "Azure OpenAI Api Version"
       }
